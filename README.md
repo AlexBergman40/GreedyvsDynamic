@@ -1,5 +1,5 @@
-# Class: CPT_S 350, Design and Analysis of Algorithms
+# Comparison of Dynamic Programming and Greedy Algorithm for Pathfinding
 
-# Group Members: Joshua Menter, Justus Jones, Alex Bergman, Trenton Flieger
+## Group Members: Joshua Menter, Justus Jones, Alex Bergman, Trenton Flieger
 
 instructions to run the code: ??
