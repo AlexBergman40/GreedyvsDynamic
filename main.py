@@ -21,10 +21,12 @@ from collections import deque
 # GRAPH GENERATION
 # ============================================================================
 
+
 def ensure_reachability(G, start, target):
     """
     Guarantees that `target` is reachable from `start` in an undirected graph.
-    If not, adds a simple path (with at most 3 intermediate nodes) to connect them.
+    If not, adds a simple path (with at most 3 intermediate nodes) to connect
+    them.
     """
     # BFS to check reachability
     visited = set()
@@ -41,13 +43,15 @@ def ensure_reachability(G, start, target):
     # Build a connecting path using some free nodes
     available = list(set(G.nodes()) - {start, target})
     random.shuffle(available)
-    path = [start] + available[:random.randint(1, min(3, len(available)))] + [target]
+    path = [start] + \
+        available[:random.randint(1, min(3, len(available)))] + [target]
     for i in range(len(path) - 1):
         u, v = path[i], path[i + 1]
         if not G.has_edge(u, v):
             weight = random.randint(1, 10)
             G.add_edge(u, v, weight=weight)
     return G
+
 
 def generate_graph(n, edge_factor=2, max_edges=None):
     """
@@ -58,7 +62,8 @@ def generate_graph(n, edge_factor=2, max_edges=None):
     for i in range(n):
         G.add_node(i)
 
-    num_edges = n * edge_factor if max_edges is None else min(n * edge_factor, max_edges)
+    num_edges = n * \
+        edge_factor if max_edges is None else min(n * edge_factor, max_edges)
     edges_added = 0
     while edges_added < num_edges:
         u = random.randint(0, n - 1)
@@ -75,9 +80,11 @@ def generate_graph(n, edge_factor=2, max_edges=None):
 # GRAPH LAYOUT AND DRAWING
 # ============================================================================
 
+
 def grid_layout(G):
     """
-    Arranges nodes in a grid (left‑to‑right, top‑to‑bottom) for consistent plotting.
+    Arranges nodes in a grid (left‑to‑right, top‑to‑bottom) for consistent
+    plotting.
     """
     n = len(G.nodes())
     cols = int(math.ceil(math.sqrt(n)))
@@ -85,8 +92,10 @@ def grid_layout(G):
     for i, node in enumerate(sorted(G.nodes())):
         row = i // cols
         col = i % cols
-        pos[node] = (col, -row)          # negative row to place nodes from top to bottom
+        # negative row to place nodes from top to bottom
+        pos[node] = (col, -row)
     return pos
+
 
 def draw_graph(G, pos, dist, current, ax, start, target):
     """
@@ -111,7 +120,7 @@ def draw_graph(G, pos, dist, current, ax, start, target):
     if len(G.nodes()) <= 50:
         edge_labels = nx.get_edge_attributes(G, 'weight')
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels,
-                                      ax=ax, font_size=7)
+                                     ax=ax, font_size=7)
 
     ax.text(0, 1.1, f"Start: {start}  Target: {target}",
             transform=ax.transAxes, fontsize=10)
@@ -121,10 +130,12 @@ def draw_graph(G, pos, dist, current, ax, start, target):
 # ALGORITHMS
 # ============================================================================
 
+
 def bellman_ford(G, start, target, record_steps=False):
     """
     Bellman‑Ford algorithm for undirected graphs.
-    If record_steps=True, returns step‑by‑step distance dictionaries for animation.
+    If record_steps=True, returns step‑by‑step distance dictionaries for
+    animation.
     """
     dist = {node: float('inf') for node in G.nodes()}
     dist[start] = 0
@@ -143,10 +154,12 @@ def bellman_ford(G, start, target, record_steps=False):
                     currents.append(a)      # source node of this half‑edge
     return dist, steps, currents
 
+
 def dijkstra(G, start, target, record_steps=False):
     """
     Dijkstra's algorithm using a priority queue.
-    If record_steps=True, returns step‑by‑step distance dictionaries for animation.
+    If record_steps=True, returns step‑by‑step distance dictionaries for
+    animation.
     """
     dist = {node: float('inf') for node in G.nodes()}
     dist[start] = 0
@@ -173,6 +186,7 @@ def dijkstra(G, start, target, record_steps=False):
 # ============================================================================
 # GIF CREATION
 # ============================================================================
+
 
 def save_gif(G, pos, steps, currents, filename, start, target):
     """
@@ -202,9 +216,13 @@ def save_gif(G, pos, steps, currents, filename, start, target):
 # MAIN DEMO
 # ============================================================================
 
+
 def run_demo():
-    """Main driver: creates GIFs for the 10‑node graph and times both algorithms."""
-    graph_sizes = [10, 50, 100, 200, 500, 1000]   # Bellman‑Ford becomes slow beyond 1000
+    """
+    Main driver: creates GIFs for the 10‑node graph and times both algorithms.
+    """
+    graph_sizes = [10, 50, 100, 200, 500,
+                   1000]   # Bellman‑Ford becomes slow beyond 1000
     num_runs = 5
 
     # -------- Generate the 10‑node graph once for both GIFs --------
@@ -215,16 +233,20 @@ def run_demo():
         start, target = 0, 9
 
         print("Running Bellman‑Ford on the shared graph to create GIF...")
-        bf_dist, bf_steps, bf_currents = bellman_ford(gif_graph, start, target, record_steps=True)
+        bf_dist, bf_steps, bf_currents = bellman_ford(
+            gif_graph, start, target, record_steps=True)
         if bf_dist[target] < float('inf'):
-            save_gif(gif_graph, gif_pos, bf_steps, bf_currents, "bf_10.gif", start, target)
+            save_gif(gif_graph, gif_pos, bf_steps,
+                     bf_currents, "bf_10.gif", start, target)
         else:
             print("Warning: target not reachable for Bellman‑Ford GIF; skipping.")
 
         print("Running Dijkstra on the shared graph to create GIF...")
-        dj_dist, dj_steps, dj_currents = dijkstra(gif_graph, start, target, record_steps=True)
+        dj_dist, dj_steps, dj_currents = dijkstra(
+            gif_graph, start, target, record_steps=True)
         if dj_dist[target] < float('inf'):
-            save_gif(gif_graph, gif_pos, dj_steps, dj_currents, "dj_10.gif", start, target)
+            save_gif(gif_graph, gif_pos, dj_steps,
+                     dj_currents, "dj_10.gif", start, target)
         else:
             print("Warning: target not reachable for Dijkstra GIF; skipping.")
 
@@ -254,6 +276,7 @@ def run_demo():
 
         print(f"Average Bellman‑Ford time: {sum(bf_times)/num_runs:.4f} s")
         print(f"Average Dijkstra time:     {sum(dj_times)/num_runs:.4f} s")
+
 
 if __name__ == "__main__":
     run_demo()
